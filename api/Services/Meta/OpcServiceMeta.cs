@@ -8,38 +8,29 @@ namespace api.Services.Meta
   public abstract class OpcServiceMeta
   {
     /// <summary>
-    /// Browses for available local OPC Data Access (DA) protocol servers.
+    /// Browses for available OPC Data Access (DA) protocol servers, either locally or on a remote host.
     /// </summary>
+    /// <param name="host">
+    /// The host address (hostname or IP) where the OPC DA servers are expected to be located.
+    /// If <c>null</c> or empty, the method will browse for OPC DA servers on the local machine.
+    /// </param>
     /// <returns>
-    /// An array of <see cref="OpcDa"/> objects representing the OPC DA servers available on the local machine.
+    /// An array of <see cref="OpcDa"/> objects representing the available OPC DA servers on the specified host (or locally if no host is provided).
     /// </returns>
-    public abstract OpcDa[] BrowseLocalDaServers();
+    public abstract OpcDa[] BrowseDaServers(string? host = null);
 
     /// <summary>
-    /// Browses for available local OPC Unified Architecture (UA) protocol servers.
+    /// Browses for available OPC Unified Architecture (UA) protocol servers, either locally or on a remote host.
     /// </summary>
+    /// <param name="host">
+    /// The host address (hostname or IP) where the OPC UA servers are expected to be located.
+    /// If <c>null</c> or empty, the method will browse for OPC UA servers on the local machine.
+    /// </param>
     /// <returns>
-    /// An array of <see cref="OpcUa"/> objects representing the OPC UA servers available on the local machine.
+    /// An array of <see cref="OpcUa"/> objects representing the available OPC UA servers on the specified host (or locally if no host is provided).
     /// </returns>
-    public abstract OpcUa[] BrowseLocalUaServers();
+    public abstract OpcUa[] BrowseUaServers(string? host = null);
 
-    /// <summary>
-    /// Browses for OPC Data Access (DA) protocol servers on a specified remote host.
-    /// </summary>
-    /// <param name="host">The host address (hostname or IP) where the OPC DA servers are expected to be located.</param>
-    /// <returns>
-    /// An array of <see cref="OpcDa"/> objects representing the OPC DA servers discovered on the specified remote host.
-    /// </returns>
-    public abstract OpcDa[] BrowseRemoteDaServers(string host);
-
-    /// <summary>
-    /// Browses for OPC Unified Architecture (UA) protocol servers on a specified remote host.
-    /// </summary>
-    /// <param name="host">The host address (hostname or IP) where the OPC UA servers are expected to be located.</param>
-    /// <returns>
-    /// An array of <see cref="OpcUa"/> objects representing the OPC UA servers discovered on the specified remote host.
-    /// </returns>
-    public abstract OpcUa[] BrowseRemoteUaServers(string host);
 
     /// <summary>
     /// Checks if a specified OPC server exists either locally or on a remote host.
