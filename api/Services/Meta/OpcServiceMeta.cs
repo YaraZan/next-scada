@@ -42,23 +42,17 @@ namespace api.Services.Meta
     public abstract OpcUa[] BrowseRemoteUaServers(string host);
 
     /// <summary>
-    /// Checks if a specified local OPC server exists on the machine.
+    /// Checks if a specified OPC server exists either locally or on a remote host.
     /// </summary>
-    /// <param name="opcServer">An <see cref="OpcServer"/> object representing the server to check for existence locally.</param>
+    /// <param name="opcServer">An <see cref="OpcServer"/> object representing the server to check for existence.</param>
+    /// <param name="host">
+    /// The host address (hostname or IP) where the OPC server is expected to be located.
+    /// If <c>null</c> or empty, the method will check locally for the OPC server.
+    /// </param>
     /// <returns>
-    /// <c>true</c> if the specified OPC server exists on the local machine; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified OPC server exists on the given host (or locally if no host is provided); otherwise, <c>false</c>.
     /// </returns>
-    public abstract bool LocalServerExists(OpcServer opcServer);
-
-    /// <summary>
-    /// Checks if a specified OPC server exists on a remote host.
-    /// </summary>
-    /// <param name="host">The host address (hostname or IP) where the OPC server is expected to be located.</param>
-    /// <param name="opcServer">An <see cref="OpcServer"/> object representing the server to check for existence on the remote host.</param>
-    /// <returns>
-    /// <c>true</c> if the specified OPC server exists on the specified remote host; otherwise, <c>false</c>.
-    /// </returns>
-    public abstract bool RemoteServerExists(string host, OpcServer opcServer);
+    public abstract bool ServerExists(OpcServer opcServer, string? host = null);
 
     /// <summary>
     /// Browse available OPC servers (both UA and optionally DA) from a specified host or locally.
