@@ -1,6 +1,6 @@
 namespace api.Models.Opc
 {
-    public class OpcUa : Opc
+    public class OpcUa : OpcServer
     {
         public OpcUa(
             string applicationName,
