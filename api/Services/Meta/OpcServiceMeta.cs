@@ -43,7 +43,7 @@ namespace api.Services.Meta
     /// <returns>
     /// <c>true</c> if the specified OPC server exists on the given host (or locally if no host is provided); otherwise, <c>false</c>.
     /// </returns>
-    public abstract bool ServerExists(OpcServer opcServer, string? host = null);
+    public abstract bool ServerExists(string url, string? host = null);
 
     /// <summary>
     /// Browse available OPC servers (both UA and optionally DA) from a specified host or locally.
