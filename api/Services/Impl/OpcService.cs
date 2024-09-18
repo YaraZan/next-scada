@@ -19,7 +19,8 @@ namespace api.Services.Impl
         .Select(server => new OpcDa(
           server.Description,
           server.ProgId,
-          server.UrlString))
+          server.UrlString,
+          host))
         .ToArray();
 
       return servers;
@@ -32,7 +33,8 @@ namespace api.Services.Impl
         .Select(server => new OpcUa(
           server.ApplicationName,
           server.DiscoveryUriString,
-          server.ApplicationUriString))
+          server.ApplicationUriString,
+          host))
         .ToArray();
 
       return servers;
