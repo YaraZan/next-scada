@@ -12,9 +12,9 @@ namespace api.Services.Impl
     private static readonly EasyDAClient daClient = new();
     private static readonly EasyUAClient uaClient = new();
 
-    public override OpcDa[] BrowseLocalDaServers()
+    public override OpcDa[] BrowseDaServers(string? host = null)
     {
-      var serverElementCollection = daClient.BrowseServers("");
+      var serverElementCollection = daClient.BrowseServers(host ?? "");
       var servers = serverElementCollection
         .Select(server => new OpcDa(
           server.Description,
@@ -25,35 +25,9 @@ namespace api.Services.Impl
       return servers;
     }
 
-    public override OpcUa[] BrowseLocalUaServers()
+    public override OpcUa[] BrowseUaServers(string? host = null)
     {
-      var serverElementCollection = uaClient.DiscoverLocalServers("opcua.demo-this.com");
-      var servers = serverElementCollection
-        .Select(server => new OpcUa(
-          server.ApplicationName,
-          server.DiscoveryUriString,
-          server.ApplicationUriString))
-        .ToArray();
-
-      return servers;
-    }
-
-    public override OpcDa[] BrowseRemoteDaServers(string host)
-    {
-      var serverElementCollection = daClient.BrowseServers(host);
-      var servers = serverElementCollection
-        .Select(server => new OpcDa(
-          server.Description,
-          server.ProgId,
-          server.UrlString))
-        .ToArray();
-
-      return servers;
-    }
-
-    public override OpcUa[] BrowseRemoteUaServers(string host)
-    {
-      var serverElementCollection = uaClient.DiscoverLocalServers(host);
+      var serverElementCollection = uaClient.DiscoverLocalServers(host ?? "opcua.demo-this.com");
       var servers = serverElementCollection
         .Select(server => new OpcUa(
           server.ApplicationName,
@@ -73,7 +47,7 @@ namespace api.Services.Impl
       {
         try
         {
-          var daServers = BrowseRemoteDaServers(host ?? "");
+          var daServers = BrowseDaServers(host);
           opcServers.AddRange(daServers.Cast<OpcServer>());
         }
         catch (Exception daException)
@@ -84,7 +58,7 @@ namespace api.Services.Impl
 
       try
       {
-          var uaServers = BrowseRemoteUaServers(host ?? "opcua.demo-this.com");
+          var uaServers = BrowseUaServers(host);
           opcServers.AddRange(uaServers.Cast<OpcServer>());
       }
       catch (Exception uaException)
@@ -100,6 +74,13 @@ namespace api.Services.Impl
       }
 
       return opcServers.ToArray();
+    }
+
+    public override bool ServerExists(string url, string? host = null)
+    {
+      OpcServer[] servers = BrowseServers(true, host);
+
+      return servers.Any(server => server.Url == url);
     }
   }
 }
