@@ -6,6 +6,8 @@ namespace api.Models.Opc
         public virtual string Name { get; set; }
         public virtual string ConnectionString { get; set; }
 
+        public virtual string? Host { get; set; }
+
         public abstract string Type { get; }
     }
 }
