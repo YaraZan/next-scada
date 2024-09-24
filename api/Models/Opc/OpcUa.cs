@@ -1,22 +1,18 @@
 namespace api.Models.Opc
 {
-    public class OpcUa : OpcServer
+    public class OpcUa(
+        string applicationName,
+        string discoveryUri,
+        string applicationUriString,
+        string? host = null
+        ) : OpcServer
     {
-        public OpcUa(
-            string applicationName,
-            string discoveryUri,
-            string applicationUriString
-        )
-        {
-            Name = applicationName;
-            ConnectionString = discoveryUri;
-            Url = applicationUriString;
-        }
+    public override string Url { get; set; } = applicationUriString;
+    public override string Name { get; set; } = applicationName;
+    public override string ConnectionString { get; set; } = discoveryUri;
 
-        public override string Url { get; set; }
-        public override string Name { get; set; }
-        public override string ConnectionString { get; set; }
+    public override string? Host { get; set; } = host;
 
-        public override string Type => "UA";
+    public override string Type => "UA";
     }
 }
