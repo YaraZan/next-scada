@@ -57,6 +57,7 @@ jobs:
 
     env:
       Solution_Name: api                         # Replace with your solution name, i.e. MyWpfApp.sln.
+      Wap_Project_Directory: api
 #      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
 
     steps:
