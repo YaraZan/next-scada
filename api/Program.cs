@@ -10,12 +10,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        corsBuilder => corsBuilder
-            .WithOrigins(clientBaseUrl)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
+  options.AddPolicy("AllowSpecificOrigin",
+      corsBuilder => corsBuilder
+          .WithOrigins(clientBaseUrl)
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials());
 });
 
 builder.WebHost.UseUrls(hostUrl);
@@ -24,7 +24,7 @@ var app = builder.Build();
 
 var webSocketOptions = new WebSocketOptions
 {
-    KeepAliveInterval = TimeSpan.FromMinutes(2)
+  KeepAliveInterval = TimeSpan.FromMinutes(2)
 };
 webSocketOptions.AllowedOrigins.Add(clientBaseUrl);
 
@@ -32,8 +32,8 @@ app.UseWebSockets(webSocketOptions);
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 app.UseCors("AllowSpecificOrigin");
