@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using api.Models.Opc;
 
 namespace api.Services.Meta
@@ -35,7 +36,9 @@ namespace api.Services.Meta
     /// <summary>
     /// Checks if a specified OPC server exists either locally or on a remote host.
     /// </summary>
-    /// <param name="opcServer">An <see cref="OpcServer"/> object representing the server to check for existence.</param>
+    /// <param name="connectionString">
+    /// Url used to connect to OPC server.
+    /// </param>
     /// <param name="host">
     /// The host address (hostname or IP) where the OPC server is expected to be located.
     /// If <c>null</c> or empty, the method will check locally for the OPC server.
@@ -43,7 +46,7 @@ namespace api.Services.Meta
     /// <returns>
     /// <c>true</c> if the specified OPC server exists on the given host (or locally if no host is provided); otherwise, <c>false</c>.
     /// </returns>
-    public abstract bool ServerExists(string url, string? host = null);
+    public abstract bool ServerExists(string connectionString, string? host = null);
 
     /// <summary>
     /// Browse available OPC servers (both UA and optionally DA) from a specified host or locally.
@@ -53,5 +56,13 @@ namespace api.Services.Meta
     /// <returns>An array of <see cref="OpcServer"/> objects representing the available OPC servers.</returns>
     public abstract OpcServer[] BrowseServers(bool withDa = false, string? host = null);
 
+    /// <summary>
+    /// Subscribe to OPC server items.
+    /// </summary>
+    /// <param name="connectionString">Path to connect to OPC server.</param>
+    /// <param name="itemPaths">An array of strings, representing item paths.</param>
+    /// <param name="isDa">Boolean value, defining whether connecting items should be treated as DA items</param>
+    /// <param name="host">Host of OPC server.</param>
+    public abstract void SubscribeToItems(string connectionString, IEnumerable<string> itemPaths, bool isDa = false, string? host = null);
   }
 }
