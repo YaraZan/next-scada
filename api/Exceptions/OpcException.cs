@@ -26,11 +26,19 @@ namespace api.Exceptions
     }
   }
 
-    public class OpcServerExistsCheckException : Exception
+  public class OpcItemSubscriptionException : Exception
+  {
+    public OpcItemSubscriptionException()
+        : base("An error occurred while subcribing the OPC item.")
     {
-      public OpcServerExistsCheckException()
-          : base("An error occurred trying to check OPC server availability.")
-      {
-      }
     }
+  }
+
+  public class OpcServerExistsCheckException : Exception
+  {
+    public OpcServerExistsCheckException()
+        : base("An error occurred trying to check OPC server availability.")
+    {
+    }
+  }
 }

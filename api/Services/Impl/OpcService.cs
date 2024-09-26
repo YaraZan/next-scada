@@ -1,10 +1,15 @@
+using System.Net.WebSockets;
+using System.Text;
+using api.Core;
+using api.Core.api.Core;
 using api.Exceptions;
 using api.Models.Opc;
 using api.Services.Meta;
 using OpcLabs.EasyOpc;
 using OpcLabs.EasyOpc.DataAccess;
-using OpcLabs.EasyOpc.OperationModel;
+using OpcLabs.EasyOpc.DataAccess.OperationModel;
 using OpcLabs.EasyOpc.UA;
+using OpcLabs.EasyOpc.UA.OperationModel;
 
 namespace api.Services.Impl
 {
@@ -15,6 +20,8 @@ namespace api.Services.Impl
     private static readonly EasyUAClient uaClient = new();
 
     private static readonly TimeSpan timeout = TimeSpan.FromSeconds(5);
+
+    private static readonly int updateRate = 1000;
 
     public override OpcDa[] BrowseDaServers(string? host = null)
     {
@@ -46,38 +53,38 @@ namespace api.Services.Impl
 
     public override OpcServer[] BrowseServers(bool withDa = false, string? host = null)
     {
-        List<OpcServer> opcServers = [];
-        List<string> errors = [];
+      List<OpcServer> opcServers = [];
+      List<string> errors = [];
 
-        if (withDa)
-        {
-            try
-            {
-                var daServers = OpcOperationTimeoutHandler(() => BrowseDaServers(host), timeout);
-                opcServers.AddRange(daServers.Cast<OpcServer>());
-            }
-            catch (Exception daException)
-            {
-                errors.Add($"DA Error: {daException.Message}");
-            }
-        }
-
+      if (withDa)
+      {
         try
         {
-            var uaServers = OpcOperationTimeoutHandler(() => BrowseUaServers(host), timeout);
-            opcServers.AddRange(uaServers.Cast<OpcServer>());
+          var daServers = OpcOperationTimeoutHandler(() => BrowseDaServers(host), timeout);
+          opcServers.AddRange(daServers.Cast<OpcServer>());
         }
-        catch (Exception uaException)
+        catch (Exception daException)
         {
-            errors.Add($"UA Error: {uaException.Message}");
+          errors.Add($"DA Error: {daException.Message}");
         }
+      }
 
-        if (opcServers.Count == 0 && errors.Count > 0)
-        {
-            throw new OpcBrowsingException(string.Join("; ", errors));
-        }
+      try
+      {
+        var uaServers = OpcOperationTimeoutHandler(() => BrowseUaServers(host), timeout);
+        opcServers.AddRange(uaServers.Cast<OpcServer>());
+      }
+      catch (Exception uaException)
+      {
+        errors.Add($"UA Error: {uaException.Message}");
+      }
 
-        return [.. opcServers];
+      if (opcServers.Count == 0 && errors.Count > 0)
+      {
+        throw new OpcBrowsingException(string.Join("; ", errors));
+      }
+
+      return [.. opcServers];
     }
 
     public override bool ServerExists(string url, string? host = null)
@@ -86,11 +93,64 @@ namespace api.Services.Impl
       {
         OpcServer[] servers = BrowseServers(true, host);
 
-        return servers.Any(server => server.Url == url);
+        return servers.Any(server => server.ConnectionString == url);
       }
       catch (Exception)
       {
         throw new OpcServerExistsCheckException();
+      }
+    }
+
+    public override void SubscribeToItems(string connectionString, IEnumerable<string> itemPaths, bool isDa = false, string? host = null)
+    {
+      try
+      {
+        if (isDa)
+        {
+          daClient.ItemChanged += DaItemChanged;
+
+          foreach (var itemPath in itemPaths)
+          {
+            daClient.SubscribeItem(host ?? "", connectionString, itemPath, updateRate);
+          }
+        }
+        else
+        {
+          uaClient.DataChangeNotification += UaItemChanged;
+
+          foreach (var itemPath in itemPaths)
+          {
+            uaClient.SubscribeDataChange(connectionString, itemPath, updateRate);
+          }
+        }
+      }
+      catch (Exception)
+      {
+        throw new OpcItemSubscriptionException();
+      }
+    }
+
+    private static async void DaItemChanged(object sender, EasyDAItemChangedEventArgs e)
+    {
+      if (e.Succeeded)
+      {
+        await WebSocketHandler.BroadcastMessageAsync($"Item updated: {e.Vtq}");
+      }
+      else
+      {
+        await WebSocketHandler.BroadcastMessageAsync($"Error: {e.ErrorMessage}");
+      }
+    }
+
+    private static async void UaItemChanged(object sender, EasyUADataChangeNotificationEventArgs e)
+    {
+      if (e.Succeeded)
+      {
+        await WebSocketHandler.BroadcastMessageAsync($"Item updated: {e.AttributeData.Value}");
+      }
+      else
+      {
+        await WebSocketHandler.BroadcastMessageAsync($"Error: {e.ErrorMessage}");
       }
     }
 
@@ -99,7 +159,7 @@ namespace api.Services.Impl
       Task<T> browseTask = Task.Run(fn);
       if (Task.WhenAny(browseTask, Task.Delay(timeout)).Result == browseTask)
       {
-          return browseTask.Result;
+        return browseTask.Result;
       }
       else
       {
