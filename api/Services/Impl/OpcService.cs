@@ -1,9 +1,12 @@
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using api.Core;
 using api.Core.api.Core;
 using api.Exceptions;
 using api.Models.Opc;
+using api.Models.Tag;
+using api.Requests;
 using api.Services.Meta;
 using OpcLabs.EasyOpc;
 using OpcLabs.EasyOpc.DataAccess;
@@ -101,28 +104,31 @@ namespace api.Services.Impl
       }
     }
 
-    public override void SubscribeToItems(string connectionString, IEnumerable<string> itemPaths, bool isDa = false, string? host = null)
+    public override IEnumerable<int> Subscribe(SubscriptionRequest request)
     {
       try
       {
-        if (isDa)
+        List<int> subscibedIds = [];
+
+        if (request.IsDa)
         {
           daClient.ItemChanged += DaItemChanged;
 
-          foreach (var itemPath in itemPaths)
+          foreach (var item in request.ItemPaths)
           {
-            daClient.SubscribeItem(host ?? "", connectionString, itemPath, updateRate);
+            subscibedIds.Add(daClient.SubscribeItem(request.Host ?? "", request.ConnectionString, item, updateRate));
           }
         }
         else
         {
           uaClient.DataChangeNotification += UaItemChanged;
 
-          foreach (var itemPath in itemPaths)
+          foreach (var item in request.ItemPaths)
           {
-            uaClient.SubscribeDataChange(connectionString, itemPath, updateRate);
+            subscibedIds.Add(uaClient.SubscribeDataChange(request.ConnectionString, item, updateRate));
           }
         }
+        return subscibedIds;
       }
       catch (Exception)
       {
@@ -130,11 +136,45 @@ namespace api.Services.Impl
       }
     }
 
+    public override void Unsubscribe(UnsubscriptionRequest request)
+    {
+      try
+      {
+        if (request.IsDa)
+        {
+          foreach (var itemId in request.SubscribedItemIds)
+          {
+            daClient.UnsubscribeItem(itemId);
+          }
+        }
+        else
+        {
+          foreach (var itemId in request.SubscribedItemIds)
+          {
+            uaClient.UnsubscribeMonitoredItem(itemId);
+          }
+        }
+      }
+      catch (Exception)
+      {
+        throw new OpcItemUnsubscriptionException();
+      }
+    }
+
     private static async void DaItemChanged(object sender, EasyDAItemChangedEventArgs e)
     {
       if (e.Succeeded)
       {
-        await WebSocketHandler.BroadcastMessageAsync($"Item updated: {e.Vtq}");
+        string itemPath = e.Arguments.ItemDescriptor.ItemId;
+
+        var tag = new Tag(
+          itemPath,
+          e.Vtq.Value,
+          e.Vtq.Quality,
+          e.Vtq.Timestamp
+        );
+
+        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(tag));
       }
       else
       {
