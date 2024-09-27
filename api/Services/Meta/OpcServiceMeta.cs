@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using api.Models.Opc;
+using api.Requests;
 
 namespace api.Services.Meta
 {
@@ -57,12 +58,27 @@ namespace api.Services.Meta
     public abstract OpcServer[] BrowseServers(bool withDa = false, string? host = null);
 
     /// <summary>
-    /// Subscribe to OPC server items.
+    /// Subscribe to one OPC server item.
     /// </summary>
-    /// <param name="connectionString">Path to connect to OPC server.</param>
-    /// <param name="itemPaths">An array of strings, representing item paths.</param>
-    /// <param name="isDa">Boolean value, defining whether connecting items should be treated as DA items</param>
-    /// <param name="host">Host of OPC server.</param>
-    public abstract void SubscribeToItems(string connectionString, IEnumerable<string> itemPaths, bool isDa = false, string? host = null);
+    /// <param name="request">Single item subscription request</param>
+    public abstract void SubscribeToItem(SubscriptionRequest<string> request);
+
+    /// <summary>
+    /// Subscribe to list of OPC server items.
+    /// </summary>
+    /// <param name="request">A few items subscription request</param>
+    public abstract void SubscribeToItems(SubscriptionRequest<IEnumerable<string>> request);
+
+    /// <summary>
+    /// Unsubscribe from one OPC server item.
+    /// </summary>
+    /// <param name="request">Single item unsubscription request</param>
+    public abstract void UnsubscribeItem(UnsubscriptionRequest<string> request);
+
+    /// <summary>
+    /// Unsubscribe from list of OPC server items.
+    /// </summary>
+    /// <param name="request">A few items unsubscription request</param>
+    public abstract void UnsubscribeItems(UnsubscriptionRequest<IEnumerable<string>> request);
   }
 }
