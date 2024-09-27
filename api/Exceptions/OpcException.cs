@@ -34,6 +34,14 @@ namespace api.Exceptions
     }
   }
 
+  public class OpcItemUnsubscriptionException : Exception
+  {
+    public OpcItemUnsubscriptionException()
+        : base("An error occurred while unsubcribing of OPC items.")
+    {
+    }
+  }
+
   public class OpcServerExistsCheckException : Exception
   {
     public OpcServerExistsCheckException()
