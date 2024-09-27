@@ -58,27 +58,15 @@ namespace api.Services.Meta
     public abstract OpcServer[] BrowseServers(bool withDa = false, string? host = null);
 
     /// <summary>
-    /// Subscribe to one OPC server item.
+    /// Subscribe to OPC server items.
     /// </summary>
-    /// <param name="request">Single item subscription request</param>
-    public abstract void SubscribeToItem(SubscriptionRequest<string> request);
+    /// <param name="request">Subscription request</param>
+    public abstract IEnumerable<int> Subscribe(SubscriptionRequest request);
 
     /// <summary>
-    /// Subscribe to list of OPC server items.
+    /// Unsubscribe from OPC server items.
     /// </summary>
-    /// <param name="request">A few items subscription request</param>
-    public abstract void SubscribeToItems(SubscriptionRequest<IEnumerable<string>> request);
-
-    /// <summary>
-    /// Unsubscribe from one OPC server item.
-    /// </summary>
-    /// <param name="request">Single item unsubscription request</param>
-    public abstract void UnsubscribeItem(UnsubscriptionRequest<string> request);
-
-    /// <summary>
-    /// Unsubscribe from list of OPC server items.
-    /// </summary>
-    /// <param name="request">A few items unsubscription request</param>
-    public abstract void UnsubscribeItems(UnsubscriptionRequest<IEnumerable<string>> request);
+    /// <param name="request">Unsubscription request</param>
+    public abstract void Unsubscribe(UnsubscriptionRequest request);
   }
 }
