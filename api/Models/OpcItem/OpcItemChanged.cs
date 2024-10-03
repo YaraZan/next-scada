@@ -1,6 +1,6 @@
-namespace api.Models.Tag
+namespace api.Models.OpcItem
 {
-  public class Tag(
+  public class OpcItemChanged(
     string itemPath,
     object value,
     object quality,
