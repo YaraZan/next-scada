@@ -50,6 +50,22 @@ namespace api.Controllers
       }
     }
 
+    // POST /opc/browseServerItems
+    [HttpPost("browseServerItems")]
+    public IActionResult BrowseServerItems([FromBody] BrowseServerItemsRequest request)
+    {
+      try
+      {
+        var serverItems = service.BrowseServerItems(request);
+
+        return Ok(serverItems);
+      }
+      catch (OpcItemsBrowsingException ex)
+      {
+        return BadRequest(ex.GetBaseMessage());
+      }
+    }
+
     // GET /opc/serverExists?host={$host}?url={$url}
     [HttpGet("serverExists")]
     public IActionResult ServerExists(
