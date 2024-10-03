@@ -10,6 +10,14 @@ namespace api.Exceptions
     }
   }
 
+  public class OpcItemsBrowsingException : Exception
+  {
+    public OpcItemsBrowsingException()
+        : base("An error occurred while browsing OPC server items.;")
+    {
+    }
+  }
+
   public class OpcItemCreationException : Exception
   {
     public OpcItemCreationException()
