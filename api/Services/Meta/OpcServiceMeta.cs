@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using api.Models.Opc;
+using api.Models.OpcItem;
 using api.Requests;
 
 namespace api.Services.Meta
@@ -56,6 +57,13 @@ namespace api.Services.Meta
     /// <param name="host">The hostname or IP address of the remote machine to browse for servers. If <c>null</c> or empty, the method browses for local servers.</param>
     /// <returns>An array of <see cref="OpcServer"/> objects representing the available OPC servers.</returns>
     public abstract OpcServer[] BrowseServers(bool withDa = false, string? host = null);
+
+    /// <summary>
+    /// Recursively browse OPC server's node list.
+    /// </summary>
+    /// <param name="request">Server items browsing request</param>
+    /// <returns>An array of <see cref="OpcItem"/> objects.</returns>
+    public abstract OpcItem[] BrowseServerItems(BrowseServerItemsRequest request);
 
     /// <summary>
     /// Subscribe to OPC server items.
