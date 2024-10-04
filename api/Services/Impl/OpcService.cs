@@ -33,8 +33,8 @@ namespace api.Services.Impl
       var servers = serverElementCollection
         .Select(server => new OpcDa(
           server.Description,
-          server.ProgId,
           server.UrlString,
+          server.ProgId,
           host))
         .ToArray();
 
@@ -47,8 +47,8 @@ namespace api.Services.Impl
       var servers = serverElementCollection
         .Select(server => new OpcUa(
           server.ApplicationName,
-          server.DiscoveryUriString,
           server.ApplicationUriString,
+          server.DiscoveryUriString,
           host))
         .ToArray();
 
@@ -91,17 +91,17 @@ namespace api.Services.Impl
       return [.. opcServers];
     }
 
-    public override OpcServerNode[] BrowseServerItems(BrowseServerItemsRequest request)
+    public override OpcServerNode[] BrowseServerNodes(BrowseServerItemsRequest request)
     {
       try
       {
         if (request.IsDa)
         {
-          return BrowseDaNodes(request.ConnectionString, request.FolderId, request.Host);
+          return BrowseDaNodes(request.ConnectionString, request.NodeId, request.Host);
         }
         else
         {
-          return BrowseUaNodes(request.ConnectionString, request.FolderId);
+          return BrowseUaNodes(request.ConnectionString, request.NodeId);
         }
       }
       catch (Exception)
@@ -110,11 +110,11 @@ namespace api.Services.Impl
       }
     }
 
-    private static OpcServerNode[] BrowseDaNodes(string connectionString, string? folderId = null, string? host = null)
+    private static OpcServerNode[] BrowseDaNodes(string connectionString, string? nodeId = null, string? host = null)
     {
       List<OpcServerNode> opcItems = [];
 
-      var branches = daClient.BrowseBranches(host ?? "", connectionString, folderId ?? "");
+      var branches = daClient.BrowseBranches(host ?? "", connectionString, nodeId ?? "");
       foreach (var branch in branches)
       {
         opcItems.Add(new OpcFolder(
@@ -123,7 +123,7 @@ namespace api.Services.Impl
         ));
       }
 
-      var leaves = daClient.BrowseLeaves(host ?? "", connectionString, folderId ?? "");
+      var leaves = daClient.BrowseLeaves(host ?? "", connectionString, nodeId ?? "");
       foreach (var leaf in leaves)
       {
         opcItems.Add(new OpcTag(
@@ -134,13 +134,14 @@ namespace api.Services.Impl
 
       return [.. opcItems];
     }
-    private static OpcServerNode[] BrowseUaNodes(string connectionString, string? folderId = null)
+
+    private static OpcServerNode[] BrowseUaNodes(string connectionString, string? nodeId = null)
     {
       List<OpcServerNode> opcItems = [];
 
-      var nodes = folderId == null
+      var nodes = nodeId == null
           ? uaClient.BrowseDataNodes(connectionString)
-          : uaClient.BrowseDataNodes(connectionString, folderId);
+          : uaClient.BrowseDataNodes(connectionString, nodeId);
 
       foreach (var node in nodes)
       {
@@ -179,41 +180,27 @@ namespace api.Services.Impl
       }
     }
 
-    public override IEnumerable<int> Subscribe(SubscriptionRequest request)
+    public override int Subscribe(SubscriptionRequest request)
     {
-      List<int> subscibedIds = [];
-
       try
       {
         if (request.IsDa)
         {
-          daClient.ItemChanged += DaItemChanged;
+          daClient.ItemChanged += DaTagChanged;
 
-          foreach (var item in request.ItemPaths)
-          {
-            // Implement item existence check
-
-            subscibedIds.Add(daClient.SubscribeItem(request.Host ?? "", request.ConnectionString, item, updateRate));
-          }
+          return daClient.SubscribeItem(request.Host ?? "", request.ConnectionString, request.TagId, updateRate);
         }
         else
         {
-          uaClient.DataChangeNotification += UaItemChanged;
+          uaClient.DataChangeNotification += UaTagChanged;
 
-          foreach (var item in request.ItemPaths)
-          {
-            // Implement item existence check
-
-            subscibedIds.Add(uaClient.SubscribeDataChange(request.ConnectionString, item, updateRate));
-          }
+          return uaClient.SubscribeDataChange(request.ConnectionString, request.TagId, updateRate);
         }
       }
       catch (Exception)
       {
         throw new OpcItemSubscriptionException();
       }
-
-      return subscibedIds;
     }
 
     public override void Unsubscribe(UnsubscriptionRequest request)
@@ -222,17 +209,11 @@ namespace api.Services.Impl
       {
         if (request.IsDa)
         {
-          foreach (var itemId in request.SubscribedItemIds)
-          {
-            daClient.UnsubscribeItem(itemId);
-          }
+          daClient.UnsubscribeItem(request.SubscribedTagId);
         }
         else
         {
-          foreach (var itemId in request.SubscribedItemIds)
-          {
-            uaClient.UnsubscribeMonitoredItem(itemId);
-          }
+          uaClient.UnsubscribeMonitoredItem(request.SubscribedTagId);
         }
       }
       catch (Exception)
@@ -241,49 +222,58 @@ namespace api.Services.Impl
       }
     }
 
-    private static async void DaItemChanged(object sender, EasyDAItemChangedEventArgs e)
+    private static async void DaTagChanged(object sender, EasyDAItemChangedEventArgs e)
     {
+      string tagId = e.Arguments.ItemDescriptor.ItemId;
+
       if (e.Succeeded)
       {
-        string itemPath = e.Arguments.ItemDescriptor.ItemId;
-
-        var opcItemChanged = new OpcItemChanged(
-          itemPath,
+        var opcTagChanged = new OpcTagChanged(
+          tagId,
           e.Vtq.Value,
           e.Vtq.Quality,
           e.Vtq.Timestamp
         );
 
-        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcItemChanged));
+        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcTagChanged));
       }
       else
       {
-        await WebSocketHandler.BroadcastMessageAsync($"Error: {e.ErrorMessage}");
+        var opcTagErrored = new OpcTagErrored(
+          tagId,
+          e.ErrorMessage
+        );
+
+        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcTagErrored));
       }
     }
 
-    private static async void UaItemChanged(object sender, EasyUADataChangeNotificationEventArgs e)
+    private static async void UaTagChanged(object sender, EasyUADataChangeNotificationEventArgs e)
     {
-      string itemId = e.Arguments.NodeDescriptor.NodeId;
+      string tagId = e.Arguments.NodeDescriptor.NodeId;
       var newValue = e.AttributeData.Value;
 
       if (e.Succeeded)
       {
-        var opcItemChanged = new OpcItemChanged(
-          itemId,
+        var opcTagChanged = new OpcTagChanged(
+          tagId,
           newValue,
           e.AttributeData.ServerTimestamp,
           e.AttributeData.StatusCode
         );
 
-        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcItemChanged));
+        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcTagChanged));
       }
       else
       {
-        await WebSocketHandler.BroadcastMessageAsync($"Error: {e.ErrorMessage}");
+        var opcTagErrored = new OpcTagErrored(
+          tagId,
+          e.ErrorMessage
+        );
+
+        await WebSocketHandler.BroadcastMessageAsync(JsonSerializer.Serialize(opcTagErrored));
       }
     }
-
 
     private static T OpcOperationTimeoutHandler<T>(Func<T> fn, TimeSpan timeout)
     {

@@ -64,13 +64,14 @@ namespace api.Services.Meta
     /// </summary>
     /// <param name="request">Server items browsing request</param>
     /// <returns>An array of <see cref="OpcServerNode"/> objects.</returns>
-    public abstract OpcServerNode[] BrowseServerItems(BrowseServerItemsRequest request);
+    public abstract OpcServerNode[] BrowseServerNodes(BrowseServerItemsRequest request);
 
     /// <summary>
     /// Subscribe to OPC server items.
     /// </summary>
     /// <param name="request">Subscription request</param>
-    public abstract IEnumerable<int> Subscribe(SubscriptionRequest request);
+    /// <returns>Subscription id</returns>
+    public abstract int Subscribe(SubscriptionRequest request);
 
     /// <summary>
     /// Unsubscribe from OPC server items.
