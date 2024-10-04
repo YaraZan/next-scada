@@ -4,6 +4,6 @@ namespace api.Requests
   {
     public bool IsDa { get; set; }
 
-    public IEnumerable<int> SubscribedItemIds { get; set; } = [];
+    public int SubscribedTagId { get; set; }
   };
 }
