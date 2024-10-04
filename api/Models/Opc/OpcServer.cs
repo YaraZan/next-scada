@@ -1,13 +1,26 @@
 namespace api.Models.Opc
 {
-    public abstract class OpcServer
+  public abstract class OpcServer
+  {
+    public string Name { get; set; }
+    public string Url { get; set; }
+    public string ConnectionString { get; set; }
+
+    public string? Host { get; set; }
+
+    public abstract string Type { get; }
+
+    protected OpcServer(
+      string name,
+      string url,
+      string connectionString,
+      string? host = null
+    )
     {
-        public virtual string Url { get; set; }
-        public virtual string Name { get; set; }
-        public virtual string ConnectionString { get; set; }
-
-        public virtual string? Host { get; set; }
-
-        public abstract string Type { get; }
+      Name = name;
+      Url = url;
+      ConnectionString = connectionString;
+      Host = host;
     }
+  }
 }
