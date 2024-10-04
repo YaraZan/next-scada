@@ -56,7 +56,7 @@ namespace api.Controllers
     {
       try
       {
-        var serverItems = service.BrowseServerItems(request);
+        var serverItems = service.BrowseServerNodes(request);
 
         return Ok(serverItems);
       }
