@@ -6,6 +6,7 @@ using api.Core.api.Core;
 using api.Exceptions;
 using api.Models.Opc;
 using api.Models.OpcItem;
+using api.Models.OpcServerNode;
 using api.Requests;
 using api.Services.Meta;
 using OpcLabs.EasyOpc;
@@ -90,17 +91,17 @@ namespace api.Services.Impl
       return [.. opcServers];
     }
 
-    public override OpcItem[] BrowseServerItems(BrowseServerItemsRequest request)
+    public override OpcServerNode[] BrowseServerItems(BrowseServerItemsRequest request)
     {
       try
       {
         if (request.IsDa)
         {
-          return BrowseDaNodes(request.ConnectionString, "", request.Host);
+          return BrowseDaNodes(request.ConnectionString, request.FolderId, request.Host);
         }
         else
         {
-          return BrowseUaNodes(request.ConnectionString, null);
+          return BrowseUaNodes(request.ConnectionString, request.FolderId);
         }
       }
       catch (Exception)
@@ -109,41 +110,37 @@ namespace api.Services.Impl
       }
     }
 
-    private static OpcItem[] BrowseDaNodes(string connectionString, string branchId, string? host = null)
+    private static OpcServerNode[] BrowseDaNodes(string connectionString, string? folderId = null, string? host = null)
     {
-      List<OpcItem> opcItems = [];
+      List<OpcServerNode> opcItems = [];
 
-      var branches = daClient.BrowseBranches(host ?? "", connectionString, branchId);
+      var branches = daClient.BrowseBranches(host ?? "", connectionString, folderId ?? "");
       foreach (var branch in branches)
       {
-        var childOpcItems = BrowseDaNodes(connectionString, branch.ItemId, host);
-
-        opcItems.Add(new OpcItem(
+        opcItems.Add(new OpcFolder(
             branch.ItemId,
-            branch.Name,
-            [.. childOpcItems]
+            branch.Name
         ));
       }
 
-      var leaves = daClient.BrowseLeaves(host ?? "", connectionString, branchId);
+      var leaves = daClient.BrowseLeaves(host ?? "", connectionString, folderId ?? "");
       foreach (var leaf in leaves)
       {
-        opcItems.Add(new OpcItem(
+        opcItems.Add(new OpcTag(
             leaf.ItemId,
-            leaf.Name,
-            null
+            leaf.Name
         ));
       }
 
       return [.. opcItems];
     }
-    private static OpcItem[] BrowseUaNodes(string connectionString, string? nodeId = null)
+    private static OpcServerNode[] BrowseUaNodes(string connectionString, string? folderId = null)
     {
-      List<OpcItem> opcItems = [];
+      List<OpcServerNode> opcItems = [];
 
-      var nodes = nodeId == null
+      var nodes = folderId == null
           ? uaClient.BrowseDataNodes(connectionString)
-          : uaClient.BrowseDataNodes(connectionString, nodeId);
+          : uaClient.BrowseDataNodes(connectionString, folderId);
 
       foreach (var node in nodes)
       {
@@ -151,20 +148,16 @@ namespace api.Services.Impl
 
         if (childNodes.Any())
         {
-          var childOpcItems = BrowseUaNodes(connectionString, node.NodeId);
-
-          opcItems.Add(new OpcItem(
+          opcItems.Add(new OpcFolder(
               node.NodeId,
-              node.DisplayName,
-              [.. childOpcItems]
+              node.DisplayName
           ));
         }
         else
         {
-          opcItems.Add(new OpcItem(
+          opcItems.Add(new OpcTag(
               node.NodeId,
-              node.DisplayName,
-              null
+              node.DisplayName
           ));
         }
       }

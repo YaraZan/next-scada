@@ -1,6 +1,7 @@
 using System.Net.WebSockets;
 using api.Models.Opc;
 using api.Models.OpcItem;
+using api.Models.OpcServerNode;
 using api.Requests;
 
 namespace api.Services.Meta
@@ -62,8 +63,8 @@ namespace api.Services.Meta
     /// Recursively browse OPC server's node list.
     /// </summary>
     /// <param name="request">Server items browsing request</param>
-    /// <returns>An array of <see cref="OpcItem"/> objects.</returns>
-    public abstract OpcItem[] BrowseServerItems(BrowseServerItemsRequest request);
+    /// <returns>An array of <see cref="OpcServerNode"/> objects.</returns>
+    public abstract OpcServerNode[] BrowseServerItems(BrowseServerItemsRequest request);
 
     /// <summary>
     /// Subscribe to OPC server items.
