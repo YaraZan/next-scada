@@ -1,26 +1,18 @@
 namespace api.Models.Opc
 {
-  public abstract class OpcServer
+  public abstract class OpcServer(
+    string name,
+    string url,
+    string connectionString,
+    string? host = null
+    )
   {
-    public string Name { get; set; }
-    public string Url { get; set; }
-    public string ConnectionString { get; set; }
+    public string Name { get; set; } = name;
+    public string Url { get; set; } = url;
+    public string ConnectionString { get; set; } = connectionString;
 
-    public string? Host { get; set; }
+    public string? Host { get; set; } = host;
 
     public abstract string Type { get; }
-
-    protected OpcServer(
-      string name,
-      string url,
-      string connectionString,
-      string? host = null
-    )
-    {
-      Name = name;
-      Url = url;
-      ConnectionString = connectionString;
-      Host = host;
-    }
   }
 }
