@@ -50,6 +50,22 @@ namespace api.Controllers
       }
     }
 
+    // POST /opc/browseServerItems
+    [HttpPost("browseServerItems")]
+    public IActionResult BrowseServerItems([FromBody] BrowseServerItemsRequest request)
+    {
+      try
+      {
+        var serverItems = service.BrowseServerNodes(request);
+
+        return Ok(serverItems);
+      }
+      catch (OpcItemsBrowsingException ex)
+      {
+        return BadRequest(ex.GetBaseMessage());
+      }
+    }
+
     // GET /opc/serverExists?host={$host}?url={$url}
     [HttpGet("serverExists")]
     public IActionResult ServerExists(
@@ -69,19 +85,31 @@ namespace api.Controllers
       }
     }
 
+    // POST /opc/subscribe
     [HttpPost("subscribe")]
-    public IActionResult SubscribeToItem([FromBody] SubscriptionRequest request)
+    public IActionResult Subscribe([FromBody] SubscriptionRequest request)
     {
       try
       {
-        service.SubscribeToItems(
-          request.ConnectionString,
-          request.ItemPaths,
-          request.IsDa,
-          request.Host
-        );
+        var subscribedIds = service.Subscribe(request);
 
-        return Ok("Successfully subscribed to items");
+        return Ok(subscribedIds);
+      }
+      catch (OpcItemSubscriptionException ex)
+      {
+        return BadRequest(ex.GetBaseMessage());
+      }
+    }
+
+    // POST /opc/unsubscribe
+    [HttpPost("unsubscribe")]
+    public IActionResult Unsubscribe([FromBody] UnsubscriptionRequest request)
+    {
+      try
+      {
+        service.Unsubscribe(request);
+
+        return Ok("Successfully unsubscribed");
       }
       catch (OpcItemSubscriptionException ex)
       {

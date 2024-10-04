@@ -10,6 +10,14 @@ namespace api.Exceptions
     }
   }
 
+  public class OpcItemsBrowsingException : Exception
+  {
+    public OpcItemsBrowsingException()
+        : base("An error occurred while browsing OPC server items.;")
+    {
+    }
+  }
+
   public class OpcItemCreationException : Exception
   {
     public OpcItemCreationException()
@@ -30,6 +38,14 @@ namespace api.Exceptions
   {
     public OpcItemSubscriptionException()
         : base("An error occurred while subcribing the OPC item.")
+    {
+    }
+  }
+
+  public class OpcItemUnsubscriptionException : Exception
+  {
+    public OpcItemUnsubscriptionException()
+        : base("An error occurred while unsubcribing of OPC items.")
     {
     }
   }

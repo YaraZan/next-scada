@@ -1,5 +1,8 @@
 using System.Net.WebSockets;
 using api.Models.Opc;
+using api.Models.OpcItem;
+using api.Models.OpcServerNode;
+using api.Requests;
 
 namespace api.Services.Meta
 {
@@ -57,12 +60,23 @@ namespace api.Services.Meta
     public abstract OpcServer[] BrowseServers(bool withDa = false, string? host = null);
 
     /// <summary>
+    /// Recursively browse OPC server's node list.
+    /// </summary>
+    /// <param name="request">Server items browsing request</param>
+    /// <returns>An array of <see cref="OpcServerNode"/> objects.</returns>
+    public abstract OpcServerNode[] BrowseServerNodes(BrowseServerItemsRequest request);
+
+    /// <summary>
     /// Subscribe to OPC server items.
     /// </summary>
-    /// <param name="connectionString">Path to connect to OPC server.</param>
-    /// <param name="itemPaths">An array of strings, representing item paths.</param>
-    /// <param name="isDa">Boolean value, defining whether connecting items should be treated as DA items</param>
-    /// <param name="host">Host of OPC server.</param>
-    public abstract void SubscribeToItems(string connectionString, IEnumerable<string> itemPaths, bool isDa = false, string? host = null);
+    /// <param name="request">Subscription request</param>
+    /// <returns>Subscription id</returns>
+    public abstract int Subscribe(SubscriptionRequest request);
+
+    /// <summary>
+    /// Unsubscribe from OPC server items.
+    /// </summary>
+    /// <param name="request">Unsubscription request</param>
+    public abstract void Unsubscribe(UnsubscriptionRequest request);
   }
 }
