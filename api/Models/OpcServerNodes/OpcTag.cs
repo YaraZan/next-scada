@@ -1,12 +1,7 @@
 namespace api.Models.OpcServerNode
 {
-  public class OpcTag : OpcServerNode
+  public class OpcTag(string nodeId, string nodeName) : OpcServerNode(nodeId, nodeName)
   {
     public override string Type { get; } = "TAG";
-
-    public OpcTag(string itemId, string itemName)
-        : base(itemId, itemName)
-    {
-    }
   }
 }

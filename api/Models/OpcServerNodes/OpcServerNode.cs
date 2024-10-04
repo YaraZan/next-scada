@@ -1,16 +1,13 @@
 namespace api.Models.OpcServerNode
 {
-  public abstract class OpcServerNode
+  public abstract class OpcServerNode(
+    string nodeId,
+    string nodeName
+  )
   {
-    public string ItemId { get; set; }
-    public string ItemName { get; set; }
+    public string NodeId { get; set; } = nodeId;
+    public string NodeName { get; set; } = nodeName;
 
     public abstract string Type { get; }
-
-    protected OpcServerNode(string itemId, string itemName)
-    {
-      ItemId = itemId;
-      ItemName = itemName;
-    }
   }
 }
