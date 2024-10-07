@@ -2,7 +2,7 @@ namespace api.Requests
 {
   public class UnsubscriptionRequest
   {
-    public bool IsDa { get; set; }
+    public string Protocol { get; set; } = "DA";
 
     public int SubscribedTagId { get; set; }
   };
