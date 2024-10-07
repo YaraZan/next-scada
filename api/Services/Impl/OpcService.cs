@@ -91,17 +91,21 @@ namespace api.Services.Impl
       return [.. opcServers];
     }
 
-    public override OpcServerNode[] BrowseServerNodes(BrowseServerItemsRequest request)
+    public override OpcServerNode[] BrowseServerNodes(BrowseServerNodesRequest request)
     {
       try
       {
-        if (request.IsDa)
+        if (request.Protocol == "DA")
         {
           return BrowseDaNodes(request.ConnectionString, request.NodeId, request.Host);
         }
-        else
+        else if (request.Protocol == "UA")
         {
           return BrowseUaNodes(request.ConnectionString, request.NodeId);
+        }
+        else
+        {
+          throw new Exception();
         }
       }
       catch (Exception)
@@ -184,18 +188,23 @@ namespace api.Services.Impl
     {
       try
       {
-        if (request.IsDa)
+        if (request.Protocol == "DA")
         {
           daClient.ItemChanged += DaTagChanged;
 
           return daClient.SubscribeItem(request.Host ?? "", request.ConnectionString, request.TagId, updateRate);
         }
-        else
+        else if (request.Protocol == "UA")
         {
           uaClient.DataChangeNotification += UaTagChanged;
 
           return uaClient.SubscribeDataChange(request.ConnectionString, request.TagId, updateRate);
         }
+        else
+        {
+          throw new Exception();
+        }
+
       }
       catch (Exception)
       {
@@ -207,11 +216,11 @@ namespace api.Services.Impl
     {
       try
       {
-        if (request.IsDa)
+        if (request.Protocol == "DA")
         {
           daClient.UnsubscribeItem(request.SubscribedTagId);
         }
-        else
+        else if (request.Protocol == "UA")
         {
           uaClient.UnsubscribeMonitoredItem(request.SubscribedTagId);
         }
