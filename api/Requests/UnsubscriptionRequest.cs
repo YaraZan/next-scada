@@ -4,6 +4,6 @@ namespace api.Requests
   {
     public string Protocol { get; set; } = "DA";
 
-    public int SubscribedTagId { get; set; }
+    public int TagId { get; set; }
   };
 }
