@@ -218,11 +218,11 @@ namespace api.Services.Impl
       {
         if (request.Protocol == "DA")
         {
-          daClient.UnsubscribeItem(request.SubscribedTagId);
+          daClient.UnsubscribeItem(request.TagId);
         }
         else if (request.Protocol == "UA")
         {
-          uaClient.UnsubscribeMonitoredItem(request.SubscribedTagId);
+          uaClient.UnsubscribeMonitoredItem(request.TagId);
         }
       }
       catch (Exception)
