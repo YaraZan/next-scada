@@ -4,7 +4,7 @@ namespace api.Requests
   {
     public string ConnectionString { get; set; }
     public string TagId { get; set; }
-    public bool IsDa { get; set; } = false;
+    public string Protocol { get; set; } = "DA";
     public string? Host { get; set; }
   }
 

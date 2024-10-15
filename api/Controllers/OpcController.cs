@@ -52,7 +52,7 @@ namespace api.Controllers
 
     // POST /opc/browseServerItems
     [HttpPost("browseServerItems")]
-    public IActionResult BrowseServerItems([FromBody] BrowseServerItemsRequest request)
+    public IActionResult BrowseServerItems([FromBody] BrowseServerNodesRequest request)
     {
       try
       {

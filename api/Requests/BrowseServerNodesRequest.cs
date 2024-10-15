@@ -1,11 +1,11 @@
 namespace api.Requests
 {
-  public class BrowseServerItemsRequest
+  public class BrowseServerNodesRequest
   {
     public string ConnectionString { get; set; }
 
     public string? NodeId { get; set; } = null;
-    public bool IsDa { get; set; } = false;
+    public string Protocol { get; set; } = "DA";
     public string? Host { get; set; } = null;
   }
 

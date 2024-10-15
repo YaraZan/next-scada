@@ -62,9 +62,9 @@ namespace api.Services.Meta
     /// <summary>
     /// Recursively browse OPC server's node list.
     /// </summary>
-    /// <param name="request">Server items browsing request</param>
+    /// <param name="request">Server nodes browsing request</param>
     /// <returns>An array of <see cref="OpcServerNode"/> objects.</returns>
-    public abstract OpcServerNode[] BrowseServerNodes(BrowseServerItemsRequest request);
+    public abstract OpcServerNode[] BrowseServerNodes(BrowseServerNodesRequest request);
 
     /// <summary>
     /// Subscribe to OPC server items.
