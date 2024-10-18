@@ -1,15 +1,13 @@
-import type { NodeProperties } from '../properties';
-import type { SchemaNode } from '../node';
+import type { NodeProperties, NodeProperty } from '../properties';
+import type { Node } from '../node';
+import type { NodeAttribute, NodeAttributes } from '../attributes';
 
-export interface Input extends SchemaNode {
-  properties?: InputProperties | null
+type InputPropertyKeys = 'placeholder' | 'borderColor';
+type InputAttributeKeys = 'relatedTag';
+type InputProperties = Record<InputPropertyKeys, NodeProperty> & NodeProperties;
+type InputAttributes = Record<InputAttributeKeys, NodeAttribute> & NodeAttributes;
+
+export interface Input extends Node {
+  properties?: InputProperties;
+  attributes?: InputAttributes;
 }
-
-type InputProperties = {
-  textContent: {
-    value: null,
-  },
-  placeholder: {
-    value: 'Placeholder',
-  },
-} & NodeProperties;
