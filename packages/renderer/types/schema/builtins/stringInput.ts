@@ -1,6 +1,6 @@
 import type { Node, NodeAspect, NodeProperties, NodeProperty, NodeStyles } from '../node';
 
-type StringInputPropertyKeys = 'source';
+type StringInputPropertyKeys = 'value';
 type StringInputProperties = Record<StringInputPropertyKeys, NodeProperty> & NodeProperties;
 type StringInputStyleKeys = 'placeholder' | 'color';
 type StringInputStyles = Record<StringInputStyleKeys, NodeAspect> & NodeStyles;

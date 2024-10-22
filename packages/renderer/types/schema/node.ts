@@ -28,12 +28,12 @@ type NodePosition = {
  * - ArrayInput: A node for capturing and displaying array-based data.
  */
 export type NodeType =
-  | 'LabelView'
-  | 'TextInput'
-  | 'NumberInput'
+  | 'Label'
+  | 'StringField'
+  | 'NumberField'
   | 'ImageView'
-  | 'BooleanInput'
-  | 'ArrayInput';
+  | 'BooleanToggle'
+  | 'ArrayChart';
 
 /**
  * Allowed data types
@@ -52,8 +52,8 @@ export type AllowedDataTypes = string | boolean | number | AllowedDataTypes[];
 export type UIComponent =
   | 'StringInput'
   | 'NumberInput'
-  | 'BooleanToggle'
-  | 'ArrayChart'
+  | 'BooleanInput'
+  | 'ArrayInput'
   | 'OptionPicker'
   | 'ColorPicker'
   | 'UploadField';
@@ -72,8 +72,7 @@ export type UIComponent =
  */
 export interface NodeAspect {
   component: UIComponent;
-  measurement?: string;
-  value: AllowedDataTypes;
+  value: AllowedDataTypes | null;
   options?: AllowedDataTypes[];
 }
 
@@ -134,12 +133,12 @@ export interface Node {
   /**
    * Unique identifier for the node.
    */
-  uuid: string;
+  uuid?: string;
 
   /**
    * Human-readable name for the node.
    */
-  name: string;
+  name?: string;
 
   /**
    * The type of the node, which defines its behavior and functionality.
