@@ -105,7 +105,7 @@ export type NodeStyles = {
 } & BaseStyles;
 
 export type NodeProperty = NodeAspect & {
-  dataSource?: string | null
+  dataSource?: string | null;
 };
 
 type BasePropertyKeys = 'visibility' | 'rotation';

@@ -1,4 +1,4 @@
-import type { Node, NodeAspect, NodeProperties, NodeProperty, NodeStyles } from '../node';
+import type {Node, NodeAspect, NodeProperties, NodeProperty, NodeStyles} from '../node';
 
 type StringInputPropertyKeys = 'value';
 type StringInputProperties = Record<StringInputPropertyKeys, NodeProperty> & NodeProperties;
