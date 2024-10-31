@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/fbc01bbe-3171-4231-aac5-cbb8a55f061a)
+![image](https://github.com/user-attachments/assets/b67bd205-b835-4445-877f-8c4fd8717668)
 
 # NextSCADA
 
